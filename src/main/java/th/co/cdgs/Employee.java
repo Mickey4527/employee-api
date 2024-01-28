@@ -54,8 +54,13 @@ public class Employee {
     public String getLastName(){
         return lastname;
     }
+
     public void setLastName(String lastname){
         this.lastname = lastname;
+    }
+
+    public String getFullName(){
+        return firstname + " " + lastname;
     }
 
     public String getDepartment(){

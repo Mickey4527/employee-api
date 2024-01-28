@@ -18,15 +18,12 @@ public class EmployeeParm {
     EntityManager em;
 
     @GET
-    public List<Employee> get(@QueryParam("firstName") String firstName, 
-                              @QueryParam("lastName") String lastName){
-        Query query = em.createNativeQuery("SELECT * FROM employee WHERE first_name = ? AND last_name = ?", Employee.class);
+    public List<Employee> searchByNativeSql(@QueryParam("firstName") String firstName,
+            @QueryParam("lastName") String lastName) {
+        Query query = em.createNativeQuery("SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
+                Employee.class);
         query.setParameter(1, firstName);
         query.setParameter(2, lastName);
-
-        if(query.getResultList().size() == 0){
-            return null;
-        }
         return query.getResultList();
-    }
+}
 }
