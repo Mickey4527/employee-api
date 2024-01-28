@@ -38,6 +38,7 @@ public class EmployeeResource {
         }
         return entity;
     }
+
    
     @POST
     @Transactional
@@ -48,6 +49,7 @@ public class EmployeeResource {
          em.persist(employee);
          return Response.status(Status.CREATED).entity(employee).build();
     }
+
 
     @PUT
     @Path("{id}")
@@ -80,3 +82,4 @@ public class EmployeeResource {
         return Response.status(Status.OK).build();
     }
 }
+

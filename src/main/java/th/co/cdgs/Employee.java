@@ -25,10 +25,10 @@ public class Employee {
     private Integer id;
 
     @Column(name = "first_name", length = 100)
-    private String firstName;
+    private String firstname;
 
     @Column(name = "last_name", length = 100)
-    private String lastName;
+    private String lastname;
 
     @Column(name = "department", length = 100)
     private String department;
@@ -46,16 +46,16 @@ public class Employee {
         this.id = id;
     }
     public String getFirstName(){
-        return firstName;
+        return firstname;
     }
-    public void setFirstName(String firstName){
-        this.firstName = firstName;
+    public void setFirstName(String firstname){
+        this.firstname = firstname;
     }
     public String getLastName(){
-        return lastName;
+        return lastname;
     }
-    public void setLastName(String lastName){
-        this.lastName = lastName;
+    public void setLastName(String lastname){
+        this.lastname = lastname;
     }
 
     public String getDepartment(){
