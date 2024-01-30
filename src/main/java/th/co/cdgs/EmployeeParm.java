@@ -10,7 +10,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.persistence.EntityManager;
 
-@Path("employee/searchByNativeSql")
+@Path("employee/search")
 @ApplicationScoped
 
 public class EmployeeParm {
@@ -19,11 +19,12 @@ public class EmployeeParm {
 
     @GET
     public List<Employee> searchByNativeSql(@QueryParam("firstName") String firstName,
-            @QueryParam("lastName") String lastName) {
-        Query query = em.createNativeQuery("SELECT * FROM employee WHERE first_name = ? AND last_name = ?",
+            @QueryParam("lastName") String lastName, @QueryParam("departmentId") Integer departmentId) {
+        Query query = em.createNativeQuery("SELECT * FROM employee WHERE first_name = ? AND last_name = ? AND department = ?",
                 Employee.class);
         query.setParameter(1, firstName);
         query.setParameter(2, lastName);
+        query.setParameter(3, departmentId);
         return query.getResultList();
 }
 }
