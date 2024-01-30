@@ -60,9 +60,6 @@ public class DepartmentResource {
         Department entity = em.find(Department.class, id);
         em.remove(entity);
        }
-       else{
-           return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-       }
        
        return Response.status(Status.OK).build();
     }
