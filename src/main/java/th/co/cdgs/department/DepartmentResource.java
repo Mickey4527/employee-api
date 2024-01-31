@@ -12,8 +12,8 @@ import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.PathParam;
 import jakarta.transaction.Transactional;
 import jakarta.persistence.EntityManager;
-import th.co.cdgs.Employee;
-import th.co.cdgs.EmployeeService;
+import th.co.cdgs.Employee.Employee;
+import th.co.cdgs.Employee.EmployeeService;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.WebApplicationException;
 

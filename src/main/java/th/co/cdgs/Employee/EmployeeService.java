@@ -1,4 +1,4 @@
-package th.co.cdgs;
+package th.co.cdgs.Employee;
 
 import java.util.List;
 
@@ -32,5 +32,12 @@ public class EmployeeService {
             // Handle or log the exception properly
             e.printStackTrace();
         }
+    }
+
+    @Transactional
+    public Employee changeDepartment(Employee entity, Employee employee){
+        entity.setDepartment(employee.getDepartment());
+        //entity.setVersion(employee.getVersion());
+        return em.merge(entity);
     }
 }

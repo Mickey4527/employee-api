@@ -1,4 +1,4 @@
-package th.co.cdgs;
+package th.co.cdgs.Employee;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,25 +6,25 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import jakarta.persistence.Query;
 import th.co.cdgs.department.Department;
+
 
 @Path("employee")
 @ApplicationScoped
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class EmployeeResource {
+
     @Inject
     EntityManager em;
+    EmployeeService employeeService;
 
     @GET
     public List<Employee> get(){
@@ -54,24 +54,35 @@ public class EmployeeResource {
          return Response.status(Status.CREATED).entity(employee).build();
     }
 
-
     @PUT
     @Path("{id}")
     @Transactional
-    public Response update(Integer id, Employee employee){
-       Employee entity = em.find(Employee.class, id);
-       if(entity == null){
-           throw new WebApplicationException("Employee with id of " + id + " does not exist.", 
-           Status.NOT_FOUND);
-       }
-        entity.setDepartment(employee.getDepartment());
-        entity.setFirstName(employee.getFirstName());
-        entity.setLastName(employee.getLastName());
-        entity.setGender(employee.getGender());
+    public Employee update(Integer id, Employee employee) {
 
-        return Response.status(Status.OK).entity(entity).build();
-        
+
+        Employee entity = em.find(Employee.class, id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+
+        if (entity == null) {
+            throw new WebApplicationException("Employee with id of " + id + " does not exist.", 404);
+        }
+
+        if(employee.getFirstName() != null){
+            entity.setFirstName(employee.getFirstName());
+        }
+        if(employee.getLastName() != null){
+            entity.setLastName(employee.getLastName());
+        }
+        if(employee.getGender() != 0){
+            entity.setGender(employee.getGender());
+        }
+        if(employee.getDepartment() != null){
+            Department department = em.find(Department.class, employee.getDepartment().getCode());
+            entity.setDepartment(department);
+        }
+
+        return em.find(Employee.class, id);
     }
+
 
     @DELETE
     @Path("{id}")
@@ -88,8 +99,7 @@ public class EmployeeResource {
 
     @GET
     @Path("search")
-    public List<Employee> searchByNativeSql(@BeanParam Employee condition){
-        Department department = new Department();
+    public List<Employee> searchByNativeSql(Employee condition, @QueryParam("departmentId") Integer departmentId){
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT id, first_name, last_name, concat(first_name,' ',last_name) fullname, department, gender ");
         sql.append("FROM employee ");
@@ -104,28 +114,37 @@ public class EmployeeResource {
         if(condition.getLastName() != null){
             sql.append("AND last_name = '" + condition.getLastName() + "' ");
         }
-        if(condition.getDepartment() != null){
-            sql.append("AND department = '" + condition.getDepartment() + "' ");
+        if(departmentId != null){
+            sql.append("AND department = '" + departmentId + "' ");
         }
-        if(condition.getGender() != null){
+
+        if(condition.getGender() != 0){
             sql.append("AND gender = '" + condition.getGender() + "' ");
         }
 
         Query query = em.createNativeQuery(sql.toString());
+        Employee emp = new Employee();
         List<Employee> result = new ArrayList<>();
         List<Object[]> resultList = query.getResultList();
         for (Object[] row : resultList) {
-            Employee emp = new Employee();
             emp.setId((Integer) row[0]);
             emp.setFirstName((String) row[1]);
             emp.setLastName((String) row[2]);
             emp.setFullName((String) row[3]);
-            department.setCode((Integer) row[4]);
-            emp.setGender((String) row[5]);
+            emp.setDepartment((Department) em.find(Department.class, row[4]));
+            emp.setGender((char) row[5]);
             result.add(emp);
         }
 
         return result;
-}
+    }
+
+    @PATCH
+    @Path("{id}")
+    public Response changeDepartment(Integer id, Employee employee){
+        Employee entity = em.find(Employee.class, id);
+        employeeService.changeDepartment(entity, employee);
+        return Response.ok(entity).build();
+    }
 }
 
