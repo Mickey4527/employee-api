@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -24,6 +25,7 @@ public class EmployeeResource {
 
     @Inject
     EntityManager em;
+    @Inject
     EmployeeService employeeService;
 
     @GET
@@ -56,31 +58,22 @@ public class EmployeeResource {
 
     @PUT
     @Path("{id}")
-    @Transactional
     public Employee update(Integer id, Employee employee) {
 
+            Employee entity = em.find(Employee.class, id);
 
-        Employee entity = em.find(Employee.class, id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-
-        if (entity == null) {
-            throw new WebApplicationException("Employee with id of " + id + " does not exist.", 404);
-        }
-
-        if(employee.getFirstName() != null){
+            if (entity == null) {
+                throw new WebApplicationException("Employee with id of " + id + " does not exist.", 404);
+            }
+    
             entity.setFirstName(employee.getFirstName());
-        }
-        if(employee.getLastName() != null){
             entity.setLastName(employee.getLastName());
-        }
-        if(employee.getGender() != 0){
             entity.setGender(employee.getGender());
-        }
-        if(employee.getDepartment() != null){
-            Department department = em.find(Department.class, employee.getDepartment().getCode());
-            entity.setDepartment(department);
-        }
+            employeeService.changeDepartment(entity, employee);
+        
+    
+            return entity;
 
-        return em.find(Employee.class, id);
     }
 
 
@@ -118,7 +111,7 @@ public class EmployeeResource {
             sql.append("AND department = '" + departmentId + "' ");
         }
 
-        if(condition.getGender() != 0){
+        if(condition.getGender() != null){
             sql.append("AND gender = '" + condition.getGender() + "' ");
         }
 
@@ -132,7 +125,7 @@ public class EmployeeResource {
             emp.setLastName((String) row[2]);
             emp.setFullName((String) row[3]);
             emp.setDepartment((Department) em.find(Department.class, row[4]));
-            emp.setGender((char) row[5]);
+            emp.setGender((String) row[5]);
             result.add(emp);
         }
 

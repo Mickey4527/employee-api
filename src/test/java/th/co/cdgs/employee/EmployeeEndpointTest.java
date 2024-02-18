@@ -46,7 +46,7 @@ class EmployeeEndpointTest {
                 employee.setId(2);
                 employee.setFirstName("Bruce");
                 employee.setLastName("Wayne");
-                employee.setGender('M');
+                employee.setGender("M");
                 //employee.setDepartment("Mavel");
                 ObjectMapper objectMapper = new ObjectMapper();
                 given().when().body(objectMapper.writeValueAsString(employee))

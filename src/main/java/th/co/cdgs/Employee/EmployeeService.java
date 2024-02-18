@@ -12,7 +12,9 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class EmployeeService {
     @Inject
-    private EntityManager em;
+    EmployeeService employeeService;
+    @Inject
+    EntityManager em;
 
     @Transactional(TxType.NOT_SUPPORTED)
     public List<Employee> findEmployeesByDepartment(Integer departmentId){
@@ -35,9 +37,9 @@ public class EmployeeService {
     }
 
     @Transactional
-    public Employee changeDepartment(Employee entity, Employee employee){
-        entity.setDepartment(employee.getDepartment());
-        //entity.setVersion(employee.getVersion());
-        return em.merge(entity);
-    }
+	public Employee changeDepartment(Employee entity , Employee employee) {
+		entity.setDepartment(employee.getDepartment());
+        entity.setVersion(employee.getVersion());
+		return em.merge(entity);
+	}
 }

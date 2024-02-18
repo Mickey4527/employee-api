@@ -3,6 +3,7 @@ package th.co.cdgs.Employee;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQuery;
@@ -35,22 +36,21 @@ public class Employee {
 
     private String fullname;
 
-    @ManyToOne() // ใช้ LAZY จะไม่ดึงข้อมูลมาทั้งหมด
+    @ManyToOne(fetch = FetchType.EAGER) // ใช้ LAZY จะไม่ดึงข้อมูลมาทั้งหมด
     @JoinColumn(name = "department", referencedColumnName = "code")
     private Department department;
 
     @Column(length = 1)
-    private char gender;
+    private String gender;
 
     @Version
-    @Column(name = "optlock", columnDefinition = "integer DEFAULT 0", nullable = false)
     private Integer version;
 
 
     public Employee() {
     }
 
-    public Employee(String firstname, String last_name, Department department,char gender) {
+    public Employee(String firstname, String last_name, Department department,String gender) {
         this.firstname = firstname;
         this.last_name = last_name;
         this.department = department;
@@ -97,11 +97,11 @@ public class Employee {
         this.department = department;
     }
     
-    public char getGender(){
+    public String getGender(){
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
